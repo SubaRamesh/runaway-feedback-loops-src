@@ -13,7 +13,7 @@ import numpy as np
 
 def histogram(urn, ndraws, nrunsm, lambdaa, lambdab):
     x = []
-    for i in range(nruns):
+    for i in range(nrunsm):
         urn.reset()
         for _ in urn.draw(ndraws): pass
         x.append(urn.state[0] / (urn.state[0] + urn.state[1]))
@@ -169,37 +169,59 @@ command_docstring = """Commands:
  - singleprob
 """
 
-@click.command()
-@click.option('--a', callback=set_a, type=float, help="Set the urn's a parameter")
-@click.option('--b', callback=set_b, type=float, help="Set the urn's b parameter")
-@click.option('--c', callback=set_c, type=float, help="Set the urn's c parameter")
-@click.option('--d', callback=set_d, type=float, help="Set the urn's d parameter")
-@click.option('--command', default="singlerun", help=command_docstring)
-@click.option('--ndraws', type=int, default=2000, help="How many draws from an urn")
-@click.option('--nruns', type=int, default=1000, help="How many urn runs to run")
-@click.option('--nr', type=float, default=1, help="Number of red balls in urn's starting configuration")
-@click.option('--nb', type=float, default=1, help="Number of black balls in urn's starting configuration")
-@click.option('--lambdaa', type=float, default=0.5, help="Underlying true rate for neighborhood A (red balls)")
-@click.option('--lambdab', type=float, default=0.5, help="Underlying true rate for neighborhood B (black balls)")
-@click.option('--exponential_decay', callback=exponential_decay_option, type=float, default=0, help="Add exponential decay to the urn")
-@click.option('--truncation', callback=truncation_option, type=int, help="Truncate the maximum number of new balls to add to urn")
-@click.option('--linear_surprise', callback=linear_surprise_option, is_flag=True, help="Incorporate a linear surprise factor in urn update")
-@click.option('--partial_surprise', callback=partial_surprise_option, nargs=2, type=(float, float), default=(None, None), help="Incorporate a partial surprise factor in urn update, adding only reported crimes")
-@click.option('--weighted_surprise', callback=weighted_surprise_option, nargs=4, type=(float, float, float, float), default=(None, None, None, None), help="Incorporate a weighted surprise factor in urn update, adding only reported crimes")
-@click.option('--sqrt_surprise', callback=sqrt_surprise_option, is_flag=True, help="Incorporate a sqrt surprise factor in urn update")
-@click.option('--poisson', callback=poisson_option, is_flag=True, help="urn updates are draws from a poisson instead of deterministic")
-@click.option('--mixed', callback=mixed_option, nargs=4, type=(float, float, float, float), default=(None, None, None, None), help="set parameters of a mixed urn d_A, d_B, r_B, r_B")
-@click.option('--interactive', is_flag=True, help='if set, show image interactively instead of saving to file')
-@click.option('--output', type=str, default="fig_out.png", help='name of output file if noninteractive')
-def main(a, b, c, d, output, command, ndraws, nruns, nr, nb, lambdaa, lambdab, exponential_decay, truncation, interactive, linear_surprise, sqrt_surprise, partial_surprise, weighted_surprise, poisson, mixed):
-    print("Urn starting state: %s" % ((nr, nb),))
-    print("Urn parameters: %s" % urn_params)
-    urn = urn_class((nr, nb), urn_params)
-    commands[command](urn, ndraws, nruns, lambdaa, lambdab)
-    if interactive:
-        pylab.show()
-    else:
-        pylab.savefig(output)
+# @click.command()
+# @click.option('--a', callback=set_a, type=float, help="Set the urn's a parameter")
+# @click.option('--b', callback=set_b, type=float, help="Set the urn's b parameter")
+# @click.option('--c', callback=set_c, type=float, help="Set the urn's c parameter")
+# @click.option('--d', callback=set_d, type=float, help="Set the urn's d parameter")
+# @click.option('--command', default="singlerun", help=command_docstring)
+# @click.option('--ndraws', type=int, default=2000, help="How many draws from an urn")
+# @click.option('--nruns', type=int, default=1000, help="How many urn runs to run")
+# @click.option('--nr', type=float, default=1, help="Number of red balls in urn's starting configuration")
+# @click.option('--nb', type=float, default=1, help="Number of black balls in urn's starting configuration")
+# @click.option('--lambdaa', type=float, default=0.5, help="Underlying true rate for neighborhood A (red balls)")
+# @click.option('--lambdab', type=float, default=0.5, help="Underlying true rate for neighborhood B (black balls)")
+# @click.option('--exponential_decay', callback=exponential_decay_option, type=float, default=0, help="Add exponential decay to the urn")
+# @click.option('--truncation', callback=truncation_option, type=int, help="Truncate the maximum number of new balls to add to urn")
+# @click.option('--linear_surprise', callback=linear_surprise_option, is_flag=True, help="Incorporate a linear surprise factor in urn update")
+# @click.option('--partial_surprise', callback=partial_surprise_option, nargs=2, type=(float, float), default=(None, None), help="Incorporate a partial surprise factor in urn update, adding only reported crimes")
+# @click.option('--weighted_surprise', callback=weighted_surprise_option, nargs=4, type=(float, float, float, float), default=(None, None, None, None), help="Incorporate a weighted surprise factor in urn update, adding only reported crimes")
+# @click.option('--sqrt_surprise', callback=sqrt_surprise_option, is_flag=True, help="Incorporate a sqrt surprise factor in urn update")
+# @click.option('--poisson', callback=poisson_option, is_flag=True, help="urn updates are draws from a poisson instead of deterministic")
+# @click.option('--mixed', callback=mixed_option, nargs=4, type=(float, float, float, float), default=(None, None, None, None), help="set parameters of a mixed urn d_A, d_B, r_B, r_B")
+# @click.option('--interactive', is_flag=True, help='if set, show image interactively instead of saving to file')
+# @click.option('--output', type=str, default="fig_out.png", help='name of output file if noninteractive')
+
+# def main(a, b, c, d, output, command, ndraws, nruns, nr, nb, lambdaa, lambdab, exponential_decay, truncation, interactive, linear_surprise, sqrt_surprise, partial_surprise, weighted_surprise, poisson, mixed):
+#     print("Urn starting state: %s" % ((nr, nb),))
+#     print("Urn parameters: %s" % urn_params)
+#     urn = urn_class((nr, nb), urn_params)
+#     commands[command](urn, ndraws, nruns, lambdaa, lambdab)
+#     if interactive:
+#         pylab.show()
+#     else:
+#         pylab.savefig(output)
+        
+def main():
+    # urn_params =  initial_state, pop1X, pop1Y, pop2X, pop2Y, biasX, biasY, crime1, crime2
+    initial_state = (1, 1)
+    
+    
+    print("Urn starting state: %s" % (initial_state,))
+    
+    print("Urn parameters: defined in code")
+    urn = BiasedPolyaUrn(initial_state, pop1X=0.5, pop1Y=0.5,
+                         pop2X=0.6, pop2Y=0.4,
+                         biasX=0.5, biasY=0,
+                         crime1=0.2, crime2=0.2)
+    
+    commands["singlerun"](urn, 2000, 1, 0.5, 0.5)
+    # if interactive:
+    #     pylab.show()
+    # else:
+    pylab.savefig("fig_out.png")
+    print("done.")
+        
 
 if __name__ == "__main__":
     main()

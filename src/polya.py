@@ -38,6 +38,67 @@ class PolyaUrn:
 
 ##############################################################################
 
+class BiasedPolyaUrn:
+    """A Polya Urn where the update matrix is determined with bias"""
+
+    def __init__(self, initial_state, pop1X, pop1Y, pop2X, pop2Y, biasX, biasY, crime1, crime2):
+        self.initial_state = initial_state
+        
+        self.pop1X = pop1X
+        self.pop1Y = pop1Y
+        
+        self.pop2X = pop2X
+        self.pop2Y = pop2Y
+        
+        self.pop1 = pop1X + pop1Y
+        self.pop2 = pop2X + pop2Y
+        
+        self.popX = pop1X + pop2X
+        self.popY = pop1Y + pop2Y
+        
+        self.biasX = biasX
+        self.biasY = biasY
+        
+        # assume that races are equally crimey
+        d_1 = crime1 * (pop1X * (1 + biasX) + pop1Y * (1 + biasY))
+        #crime1 * (self.biasX * (pop1X / self.pop1) + self.biasY * (pop1Y / self.pop1))
+        r_1 = crime1
+        
+        d_2 = crime2 * (pop2X * (1 + biasX) + pop2Y * (1 + biasY))
+        r_2 = crime2
+        
+        self.update_matrix = ((d_1 + r_1,       r_2),
+                              (      r_1, d_2 + r_2))
+        
+        self.reset()
+    
+    def reset(self):
+        self.state = self.initial_state
+
+    def after_draw(self, choice, state):
+        return state
+
+    def update_row(self, choice, state):
+        return self.update_matrix[choice]
+
+    def draw(self, draws=1):
+        rr = random.random
+        binom = numpy.random.binomial
+        ss = self.state
+        ad = self.after_draw
+        ur = self.update_row
+        choices = { False: 1, True: 0 }
+        for i in range(draws):
+            v = rr() * (ss[0] + ss[1])
+            choice = choices[v<ss[0]]
+            update_row = ur(choice, ss)
+            ss = (ss[0] + update_row[0], ss[1] + update_row[1])
+            ss = ad(choice, ss)
+            yield ss
+        self.state = ss
+
+##############################################################################
+
 def add_truncation(cls, truncation):
     class TruncatedUrn(cls):
         def __init__(self, *args, **kwargs):
